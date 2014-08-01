@@ -2,7 +2,7 @@
 
 do (jQuery) ->
   $.isFullScreenEnabled = ->
-    screenfull.enabled
+    screenfull.enabled && screenfull.raw.fullscreenchange
 
   $.extend $.fn,
     fullScreen: ->
