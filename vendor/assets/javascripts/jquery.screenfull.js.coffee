@@ -8,5 +8,5 @@ do (jQuery) ->
     fullScreen: ->
       $(@).on 'click', ->
         screenfull.toggle(@) if $.isFullScreenEnabled()
-      .on screenfull.raw.fullscreenchange ->
+      .on screenfull.raw.fullscreenchange, ->
         $(@).trigger(if screenfull.isFullscreen then 'fullscreen:enter' else 'fullscreen:exit')
