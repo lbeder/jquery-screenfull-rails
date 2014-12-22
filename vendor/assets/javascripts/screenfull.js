@@ -1,17 +1,19 @@
 /*!
 * screenfull
-* v1.1.1 - 2013-11-20
-* https://github.com/sindresorhus/screenfull.js
+* v2.0.0 - 2014-12-22
 * (c) Sindre Sorhus; MIT License
 */
-/*global Element */
-(function (window, document) {
+(function () {
     'use strict';
-        var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element, // IE6 throws without typeof check
 
-        fn = (function () {
-            var val, valLength;
-            var fnMap = [
+    var isCommonjs = typeof module !== 'undefined' && module.exports;
+    var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
+
+    var fn = (function () {
+        var val;
+        var valLength;
+
+        var fnMap = [
             [
                 'requestFullscreen',
                 'exitFullscreen',
@@ -28,6 +30,7 @@
                 'webkitFullscreenEnabled',
                 'webkitfullscreenchange',
                 'webkitfullscreenerror'
+
             ],
             // old WebKit (Safari 5.1)
             [
@@ -37,6 +40,7 @@
                 'webkitCancelFullScreen',
                 'webkitfullscreenchange',
                 'webkitfullscreenerror'
+
             ],
             [
                 'mozRequestFullScreen',
@@ -54,28 +58,30 @@
                 'MSFullscreenChange',
                 'MSFullscreenError'
             ]
-            ];
-            var i = 0;
-            var l = fnMap.length;
-            var ret = {};
+        ];
 
-            for (; i < l; i++) {
-                val = fnMap[i];
-                if (val && val[1] in document) {
-                    for (i = 0, valLength = val.length; i < valLength; i++) {
-                        ret[fnMap[0][i]] = val[i];
-                    }
-                    return ret;
+        var i = 0;
+        var l = fnMap.length;
+        var ret = {};
+
+        for (; i < l; i++) {
+            val = fnMap[i];
+            if (val && val[1] in document) {
+                for (i = 0, valLength = val.length; i < valLength; i++) {
+                    ret[fnMap[0][i]] = val[i];
                 }
+                return ret;
             }
-            return false;
-        })(),
+        }
 
-        screenfull = {
-            request: function (elem) {
-                var request = fn.requestFullscreen;
+        return false;
+    })();
 
-                elem = elem || document.documentElement;
+    var screenfull = {
+        request: function (elem) {
+            var request = fn.requestFullscreen;
+
+            elem = elem || document.documentElement;
 
             // Work around Safari 5.1 bug: reports support for
             // keyboard in fullscreen even though it doesn't.
@@ -97,13 +103,16 @@
                 this.request(elem);
             }
         },
-        onchange: function () {},
-        onerror: function () {},
         raw: fn
     };
 
     if (!fn) {
-        window.screenfull = false;
+        if (isCommonjs) {
+            module.exports = false;
+        } else {
+            window.screenfull = false;
+        }
+
         return;
     }
 
@@ -128,13 +137,9 @@
         }
     });
 
-    document.addEventListener(fn.fullscreenchange, function (e) {
-        screenfull.onchange.call(screenfull, e);
-    });
-
-    document.addEventListener(fn.fullscreenerror, function (e) {
-        screenfull.onerror.call(screenfull, e);
-    });
-
-    window.screenfull = screenfull;
-})(window, document);
+    if (isCommonjs) {
+        module.exports = screenfull;
+    } else {
+        window.screenfull = screenfull;
+    }
+})();
